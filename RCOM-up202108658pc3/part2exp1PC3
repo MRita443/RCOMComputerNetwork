@@ -1,0 +1,85 @@
+root@tux33:~# ifconfig
+eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 172.16.1.33  netmask 255.255.255.0  broadcast 172.16.1.255
+        inet6 fe80::221:5aff:fe61:2492  prefixlen 64  scopeid 0x20<link>
+        ether 00:21:5a:61:24:92  txqueuelen 1000  (Ethernet)
+        RX packets 950  bytes 64814 (63.2 KiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 845  bytes 56258 (54.9 KiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+        device interrupt 17  
+
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0
+        inet6 ::1  prefixlen 128  scopeid 0x10<host>
+        loop  txqueuelen 1000  (Local Loopback)
+        RX packets 654  bytes 67142 (65.5 KiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 654  bytes 67142 (65.5 KiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+root@tux33:~# ifconfig eth0 up
+root@tux33:~# ifconfig eth0 172.16.30.1/24
+root@tux33:~# route -n
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+172.16.30.0     0.0.0.0         255.255.255.0   U     0      0        0 eth0
+root@tux33:~# ping 172.16.30.254
+PING 172.16.30.254 (172.16.30.254) 56(84) bytes of data.
+64 bytes from 172.16.30.254: icmp_seq=1 ttl=64 time=0.293 ms
+64 bytes from 172.16.30.254: icmp_seq=2 ttl=64 time=0.158 ms
+64 bytes from 172.16.30.254: icmp_seq=3 ttl=64 time=0.150 ms
+64 bytes from 172.16.30.254: icmp_seq=4 ttl=64 time=0.164 ms
+64 bytes from 172.16.30.254: icmp_seq=5 ttl=64 time=0.129 ms
+64 bytes from 172.16.30.254: icmp_seq=6 ttl=64 time=0.144 ms
+64 bytes from 172.16.30.254: icmp_seq=7 ttl=64 time=0.146 ms
+64 bytes from 172.16.30.254: icmp_seq=8 ttl=64 time=0.139 ms
+64 bytes from 172.16.30.254: icmp_seq=9 ttl=64 time=0.143 ms
+64 bytes from 172.16.30.254: icmp_seq=10 ttl=64 time=0.118 ms
+64 bytes from 172.16.30.254: icmp_seq=11 ttl=64 time=0.119 ms
+^C
+--- 172.16.30.254 ping statistics ---
+11 packets transmitted, 11 received, 0% packet loss, time 233ms
+rtt min/avg/max/mdev = 0.118/0.154/0.293/0.048 ms
+root@tux33:~# ifconfig
+eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 172.16.30.1  netmask 255.255.255.0  broadcast 172.16.30.255
+        inet6 fe80::221:5aff:fe61:2492  prefixlen 64  scopeid 0x20<link>
+        ether 00:21:5a:61:24:92  txqueuelen 1000  (Ethernet)
+        RX packets 968  bytes 66872 (65.3 KiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 947  bytes 64272 (62.7 KiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+        device interrupt 17  
+
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0
+        inet6 ::1  prefixlen 128  scopeid 0x10<host>
+        loop  txqueuelen 1000  (Local Loopback)
+        RX packets 708  bytes 72752 (71.0 KiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 708  bytes 72752 (71.0 KiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+root@tux33:~# route -n
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+172.16.30.0     0.0.0.0         255.255.255.0   U     0      0        0 eth0
+root@tux33:~# arp -a
+? (172.16.30.254) at 00:21:5a:5a:7d:74 [ether] on eth0
+root@tux33:~# arp -d ipaddress
+ipaddress: Host name lookup failure
+root@tux33:~# arp -d 172.16.30.254
+root@tux33:~# arp -a
+root@tux33:~# ping 172.16.30.254
+PING 172.16.30.254 (172.16.30.254) 56(84) bytes of data.
+64 bytes from 172.16.30.254: icmp_seq=1 ttl=64 time=0.284 ms
+64 bytes from 172.16.30.254: icmp_seq=2 ttl=64 time=0.154 ms
+64 bytes from 172.16.30.254: icmp_seq=3 ttl=64 time=0.149 ms
+64 bytes from 172.16.30.254: icmp_seq=4 ttl=64 time=0.191 ms
+^C
+--- 172.16.30.254 ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss, time 67ms
+rtt min/avg/max/mdev = 0.149/0.194/0.284/0.055 ms
+root@tux33:~# 
+
