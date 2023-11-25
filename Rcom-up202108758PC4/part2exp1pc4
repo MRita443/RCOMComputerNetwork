@@ -1,0 +1,64 @@
+root@tux34:~# ifconfig
+eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 172.16.1.34  netmask 255.255.255.0  broadcast 172.16.1.255
+        inet6 fe80::221:5aff:fe5a:7d74  prefixlen 64  scopeid 0x20<link>
+        ether 00:21:5a:5a:7d:74  txqueuelen 1000  (Ethernet)
+        RX packets 4031345  bytes 1359752681 (1.2 GiB)
+        RX errors 0  dropped 2047  overruns 0  frame 0
+        TX packets 1722555  bytes 322845802 (307.8 MiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+        device interrupt 17  
+
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0
+        inet6 ::1  prefixlen 128  scopeid 0x10<host>
+        loop  txqueuelen 1000  (Local Loopback)
+        RX packets 193215  bytes 20069820 (19.1 MiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 193215  bytes 20069820 (19.1 MiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+root@tux34:~# ifconfig eth0 up
+root@tux34:~# ifconfig
+eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 172.16.1.34  netmask 255.255.255.0  broadcast 172.16.1.255
+        inet6 fe80::221:5aff:fe5a:7d74  prefixlen 64  scopeid 0x20<link>
+        ether 00:21:5a:5a:7d:74  txqueuelen 1000  (Ethernet)
+        RX packets 4031358  bytes 1359753610 (1.2 GiB)
+        RX errors 0  dropped 2047  overruns 0  frame 0
+        TX packets 1722569  bytes 322846698 (307.8 MiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+        device interrupt 17  
+
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0
+        inet6 ::1  prefixlen 128  scopeid 0x10<host>
+        loop  txqueuelen 1000  (Local Loopback)
+        RX packets 193295  bytes 20077724 (19.1 MiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 193295  bytes 20077724 (19.1 MiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+root@tux34:~# ifconfig eth0 172.16.30.254/24
+root@tux34:~# ifconfig
+eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 172.16.30.254  netmask 255.255.255.0  broadcast 172.16.30.255
+        inet6 fe80::221:5aff:fe5a:7d74  prefixlen 64  scopeid 0x20<link>
+        ether 00:21:5a:5a:7d:74  txqueuelen 1000  (Ethernet)
+        RX packets 4031555  bytes 1359766703 (1.2 GiB)
+        RX errors 0  dropped 2047  overruns 0  frame 0
+        TX packets 1722893  bytes 322868814 (307.9 MiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+        device interrupt 17  
+
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0
+        inet6 ::1  prefixlen 128  scopeid 0x10<host>
+        loop  txqueuelen 1000  (Local Loopback)
+        RX packets 194225  bytes 20170252 (19.2 MiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 194225  bytes 20170252 (19.2 MiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+root@tux34:~# 
+
