@@ -1,0 +1,55 @@
+[admin@MikroTik] > interface bridge port remove [find interface=ether5]
+[admin@MikroTik] > interface bridge port add bridge=bridge31 interface=ether5
+[admin@MikroTik] > interface bridge port print                               
+Flags: X - disabled, I - inactive, D - dynamic, H - hw-offload 
+ #     INTERFACE      BRIDGE        HW  PVID PR  PATH-COST INTERNA...    HORIZON
+ 0 I H ;;; defconf
+       ether1         bridge        yes    1 0x         10         10       none
+ 1 I H ;;; defconf
+       ether6         bridge        yes    1 0x         10         10       none
+ 2 I H ;;; defconf
+       ether7         bridge        yes    1 0x         10         10       none
+ 3 I H ;;; defconf
+       ether8         bridge        yes    1 0x         10         10       none
+ 4 I H ;;; defconf
+       ether9         bridge        yes    1 0x         10         10       none
+ 5 I H ;;; defconf
+       ether10        bridge        yes    1 0x         10         10       none
+ 6 I H ;;; defconf
+       ether11        bridge        yes    1 0x         10         10       none
+ 7 I H ;;; defconf
+       ether12        bridge        yes    1 0x         10         10       none
+ 8 I H ;;; defconf
+       ether13        bridge        yes    1 0x         10         10       none
+ 9 I H ;;; defconf
+       ether14        bridge        yes    1 0x         10         10       none
+10 I H ;;; defconf
+       ether15        bridge        yes    1 0x         10         10       none
+11 I H ;;; defconf
+       ether16        bridge        yes    1 0x         10         10       none
+12 I H ;;; defconf
+       ether17        bridge        yes    1 0x         10         10       none
+13 I H ;;; defconf
+       ether18        bridge        yes    1 0x         10         10       none
+14 I H ;;; defconf
+       ether19        bridge        yes    1 0x         10         10       none
+15 I H ;;; defconf
+       ether20        bridge        yes    1 0x         10         10       none
+16 I H ;;; defconf
+       ether21        bridge        yes    1 0x         10         10       none
+17 I H ;;; defconf
+       ether22        bridge        yes    1 0x         10         10       none
+18 I H ;;; defconf
+       ether23        bridge        yes    1 0x         10         10       none
+19 I H ;;; defconf
+       ether24        bridge        yes    1 0x         10         10       none
+20 I H ;;; defconf
+       sfp-sfpplus1   bridge        yes    1 0x         10         10       none
+21 I H ;;; defconf
+       sfp-sfpplus2   bridge        yes    1 0x         10         10       none
+22     ether3         bridge30      yes    1 0x         10         10       none
+23     ether4         bridge30      yes    1 0x         10         10       none
+24     ether2         bridge31      yes    1 0x         10         10       none
+25     ether5         bridge31      yes    1 0x         10         10       none
+
+
