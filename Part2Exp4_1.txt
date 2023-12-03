@@ -1,0 +1,8 @@
+ [admin@MikroTik] > /ip address add address=172.16.1.39/24 interface=ether23
+[admin@MikroTik] > /ip address print                                       
+Flags: X - disabled, I - invalid, D - dynamic 
+ #   ADDRESS            NETWORK         INTERFACE                               
+ 0   ;;; defconf
+     192.168.88.1/24    192.168.88.0    bridge                                  
+ 1   172.16.1.39/24     172.16.1.0      ether23                                 
+
