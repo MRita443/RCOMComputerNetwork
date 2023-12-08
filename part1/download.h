@@ -25,6 +25,7 @@ struct urlInfo
     char password[100] ;
     char host[100];
     char urlPath[100];
+    char filename[100];
 };
 
 #define max(a,b) \
@@ -41,6 +42,8 @@ struct urlInfo
 
 // Server Response Codes
 #define SERVER_ENTER_PSV 227
+#define SERVER_READY_LOGIN 220
+#define SERVER_LOGIN_SUCCESSFUL 230
 
 // State machine for parsing server responses
 #define ST_READING_CODE 0

@@ -7,7 +7,7 @@
 int control_socket;
 int data_socket;
 
-void open_socket(char *server_ip, unsigned int server_port, int sockfd)
+void open_socket(char *server_ip, unsigned int server_port, int *sockfd)
 {
     struct sockaddr_in server_addr;
 
@@ -18,14 +18,14 @@ void open_socket(char *server_ip, unsigned int server_port, int sockfd)
     server_addr.sin_port = htons(server_port);          /*server TCP port must be network byte ordered */
 
     /*open a TCP socket*/
-    if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+    if ((*sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
         perror("socket()");
         exit(-1);
     }
 
     /*connect to the server*/
-    if (connect(sockfd,
+    if (connect(*sockfd,
                 (struct sockaddr *)&server_addr,
                 sizeof(server_addr)) < 0)
     {
@@ -36,24 +36,31 @@ void open_socket(char *server_ip, unsigned int server_port, int sockfd)
 
 void get_server_response(struct server_response *response)
 {
-    memset(&response, 0, sizeof(response));
+    response->code = 0;
+    memset(response->message, 0, sizeof(response->message));
+    memset(response->server_ip, 0, sizeof(response->server_ip));
+    response->server_port = 0;
 
-    unsigned int state = ST_READING_CODE;
-    unsigned char curr_byte;
-    unsigned char file_content[3];
+    unsigned short state = ST_READING_CODE;
+    char curr_byte;
+    unsigned char file_content[4];
+    memset(&file_content, 0, sizeof(file_content));
 
-    unsigned char psv_server_info[11];
-    unsigned char ip1, ip2, ip3, ip4;
+    unsigned char psv_server_info[25];
+    unsigned short ip1, ip2, ip3, ip4;
     unsigned short port1, port2;
 
     unsigned char idx = 0;
     unsigned short idx_msg = 0;
 
+    short n;
+
     while (state != ST_END)
     {
-        unsigned short n;
 
-        if (n = read(control_socket, &curr_byte, 1) < 0)
+        n = read(control_socket, &curr_byte, 1);
+
+        if (n < 0)
         {
             perror("read() server response");
             exit(-1);
@@ -61,12 +68,18 @@ void get_server_response(struct server_response *response)
 
         if (n > 0)
         {
+
+            printf("%d\n", state);
+            printf("curr_byte %c\n", curr_byte);
+
             switch (state)
             {
             case ST_READING_CODE:
                 if (curr_byte == ' ' || curr_byte == '-')
                 {
                     sscanf(file_content, "%hu", &response->code);
+                    printf("Read code %hu\n", response->code);
+
                     if (response->code == SERVER_ENTER_PSV)
                         state = ST_PARSE_START;
                     else if (curr_byte == ' ')
@@ -80,14 +93,16 @@ void get_server_response(struct server_response *response)
             case ST_FLUSH_SINGLE:
                 response->message[idx_msg++] = curr_byte;
                 if (curr_byte == '\n')
+                {
                     state = ST_END;
+                }
                 break;
             case ST_FLUSH_MULT:
                 response->message[idx_msg++] = curr_byte;
                 if (curr_byte == '\n')
                 {
                     idx = 0;
-                    state == ST_READING_CODE;
+                    state = ST_READING_CODE;
                 }
                 break;
             case ST_PARSE_START:
@@ -102,8 +117,10 @@ void get_server_response(struct server_response *response)
                 response->message[idx_msg++] = curr_byte;
                 if (curr_byte == ')')
                 {
-                    sscanf(psv_server_info, "%c,%c,%c,%c,%hu,%hu", &ip1, &ip2, &ip3, &ip4, &port1, &port2);
+                    sscanf(psv_server_info, "%hu,%hu,%hu,%hu,%hu,%hu", &ip1, &ip2, &ip3, &ip4, &port1, &port2);
+                    printf("READ PASV INFO\n");
                     state = ST_END;
+                    printf("State %d\n", state);
                 }
                 else
                     psv_server_info[idx++] = curr_byte;
@@ -116,7 +133,7 @@ void get_server_response(struct server_response *response)
 
     if (response->code == SERVER_ENTER_PSV)
     {
-        sprintf(response->server_ip, "%c.%c.%c.%c", ip1, ip2, ip3, ip4);
+        sprintf(response->server_ip, "%hu.%hu.%hu.%hu", ip1, ip2, ip3, ip4);
         response->server_port = 256 * port1 + port2;
     }
 }
@@ -146,9 +163,6 @@ int get_IP(char *host_name, char *ip)
         exit(-1);
     }
 
-    printf("Host name  : %s\n", h->h_name);
-    printf("IP Address : %s\n", inet_ntoa(*((struct in_addr *)h->h_addr_list[0])));
-
     strcpy(ip, inet_ntoa(*((struct in_addr *)h->h_addr_list[0])));
 
     return 0;
@@ -169,14 +183,14 @@ void parse_URl(char *url, struct urlInfo *information)
     if (regexec(&url_username_password, url, 0, NULL, 0) == 0) // ftp://<user>:<password>@<host>/<url-path>
     {
         sscanf(url, "%*[^/]//%[^:]", information->user);
-        sscanf(url, "%*[^/]//%*[^:]%[^@]", information->password);
-        sscanf(url, "%*[^@]%[^/]", information->host);
+        sscanf(url, "%*[^/]//%*[^:]:%[^@]", information->password);
+        sscanf(url, "%*[^@]@%[^/]", information->host);
         sscanf(url, "%*[^@]%*[^/]%s", information->urlPath);
     }
     else if (regexec(&url_username, url, 0, NULL, 0) == 0) // ftp://<user>@<host>/<url-path>
     {
         sscanf(url, "%*[^/]//%[^@]", information->user);
-        sscanf(url, "%*[^@]%[^/]", information->host);
+        sscanf(url, "%*[^@]@%[^/]", information->host);
         sscanf(url, "%*[^@]%*[^/]%s", information->urlPath);
 
         strcpy(information->password, DEFAULT_PASSWORD);
@@ -204,6 +218,9 @@ void parse_URl(char *url, struct urlInfo *information)
             strcpy(information->host, ip);
         }
     }
+
+    char *filename = strrchr(information->urlPath, '/'); // Pointer to the last instance of '/' in the url path, aka, a pointer to the start of the file name
+    filename ? strcpy(information->filename, filename + 1) : strcpy(information->filename, information->urlPath);
 
     /*
     No username, no password
@@ -253,10 +270,16 @@ int send_command(char *instruction, struct server_response *response)
     {
         unsigned char state = ST_WAIT;
 
-        while (state == ST_WAIT)
+        while (state != ST_SUCCESS)
         {
-            get_server_response(response);
-            unsigned char response_type = response->code / 100;
+            unsigned char response_type;
+
+            if (state != ST_FAILURE && state != ST_ERROR)
+            {
+                get_server_response(response);
+                response_type = response->code / 100;
+                printf("response_type %d\n", response_type);
+            }
 
             switch (state)
             {
@@ -300,6 +323,7 @@ int request_file(char *resource, struct server_response *response)
     char command[strlen(resource) + 7];
 
     sprintf(command, "RETR %s\n", resource);
+
     if (write(control_socket, command, strlen(command)) == -1)
     {
         perror("write() server command\n");
@@ -310,8 +334,13 @@ int request_file(char *resource, struct server_response *response)
 
     while (state == ST_WAIT)
     {
-        get_server_response(response);
-        unsigned char response_type = response->code / 100;
+        unsigned char response_type;
+
+        if (state != ST_FAILURE && state != ST_ERROR)
+        {
+            get_server_response(response);
+            response_type = response->code / 100;
+        }
 
         switch (state)
         {
@@ -363,8 +392,13 @@ int login(char *user, char *pass)
 
     while (state != ST_SUCCESS)
     {
-        get_server_response(&response);
-        unsigned char response_type = response.code / 100;
+        unsigned char response_type;
+
+        if (state != ST_FAILURE && state != ST_ERROR)
+        {
+            get_server_response(&response);
+            response_type = response.code / 100;
+        }
 
         switch (state)
         {
@@ -442,7 +476,7 @@ int login(char *user, char *pass)
             exit(-1);
             break;
         case ST_SUCCESS:
-            // printf("Success: %s", response->message);
+            // printf("Success: %s\n", response.message);
             break;
         case ST_FAILURE:
             printf("Failure Login: %s\n", response.message);
@@ -456,7 +490,7 @@ int login(char *user, char *pass)
 void get_file(char *filename)
 {
 
-    FILE *file = fopen(filename, "wb");
+    FILE *file = fopen(filename, "wb+");
     if (file == NULL)
     {
         printf("Error: Opening file %s\n", filename);
@@ -497,16 +531,46 @@ int main(int argc, char **argv)
     }
 
     struct urlInfo arguments;
+    struct server_response response;
+
     parse_URl(argv[1], &arguments);
 
-    open_socket(arguments.host, DEFAULT_PORT, control_socket);
-    login(arguments.user, arguments.password);
-    /*     struct server_response response;
-        send_command("PASV", &response);
-        open_socket(response.server_ip, response.server_port, data_socket);
-        request_file(arguments.urlPath, &response);
-        get_file(arguments.urlPath);
-        close_connect(); */
+    open_socket(arguments.host, DEFAULT_PORT, &control_socket);
+
+    get_server_response(&response);
+    if (response.code != SERVER_READY_LOGIN)
+    {
+        printf("Error connecting to server\n");
+        exit(-1);
+    };
+
+    printf("1\n");
+
+    if (login(arguments.user, arguments.password) != SERVER_LOGIN_SUCCESSFUL)
+    {
+        printf("Error logging in to server\n");
+        exit(-1);
+    };
+
+    printf("2\n");
+
+    send_command("PASV", &response);
+
+    printf("3\n");
+
+    open_socket(response.server_ip, response.server_port, &data_socket);
+
+    printf("4\n");
+
+    request_file(arguments.urlPath, &response);
+
+    printf("5\n");
+
+    get_file(arguments.filename);
+
+    printf("6\n");
+
+    close_connect();
 
     return 0;
 }
