@@ -74,4 +74,67 @@ struct urlInfo
 #define DEFAULT_USER "anonymous"
 #define DEFAULT_PASSWORD "anonymous"
 
+/*
+* Function that opens a socket for communication
+* @param server_ip, a string containing the server ip
+* @param server_port, a unsigned int containing the value of the port
+* @param sockfd , an int containing the sock file descriptor
+*/
+void open_socket(char *server_ip, unsigned int server_port, int *sockfd);
+
+/*
+* Gets the response of the server and registers it on a passed server response
+* @param response, a server response passed to save the reply of the server
+*/
+void get_server_response(struct server_response *response);
+
+/*
+* Gets the value of the ip based on the give host
+* @param host_name, a string containing the name of the server host
+* @param ip, a string containing the ip of the server
+* @return an int always having the value 0
+*/
+int get_IP(char *host_name, char *ip);
+
+/*
+* Parses a given url to obtain the information it contains
+* @param url, a string containing the url passed as a parameter for the download
+* @param information, a struct that contains the fields user, pass etc for the given url
+*/
+void parse_URl(char *url, struct urlInfo *information);
+
+/*
+* Sends a command for the server to read and execute 
+* @param instruction, a string containing the instruction given
+* @param response, a struct containing the response code and, in case of 227, ip and port information
+* @return an int with the value of the instruction code
+*/
+int send_command(char *instruction, struct server_response *response);
+
+/*
+* Requests access to a given resource
+* @param resource, a string containing the url path containing the desired file
+* @param response, a struct containing the response code and, in case of 227, ip and port information
+* @return an int with the value of the instruction code
+*/
+int request_file(char *resource, struct server_response *response);
+
+/*
+* Logs in the server
+* @param user, a string containing the username information
+* @param, a string containing the password information
+* @return an int containing the response code
+*/
+int login(char *user, char *pass);
+
+/*
+* Fetches the file passed
+* @param filename, a string contaning the name of the file that's going to be downloaded
+*/
+void get_file(char *filename);
+
+/*
+* Closes the connection to the server, closing the sockets
+*/
+void close_connect()
 #endif
