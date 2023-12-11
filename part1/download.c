@@ -57,7 +57,6 @@ void get_server_response(struct server_response *response)
 
     while (state != ST_END)
     {
-
         n = read(control_socket, &curr_byte, 1);
 
         if (n < 0)
@@ -69,8 +68,8 @@ void get_server_response(struct server_response *response)
         if (n > 0)
         {
 
-            printf("%d\n", state);
-            printf("curr_byte %c\n", curr_byte);
+            // printf("%d\n", state);
+            // printf("curr_byte %c\n", curr_byte);
 
             switch (state)
             {
@@ -78,7 +77,7 @@ void get_server_response(struct server_response *response)
                 if (curr_byte == ' ' || curr_byte == '-')
                 {
                     sscanf(file_content, "%hu", &response->code);
-                    printf("Read code %hu\n", response->code);
+                    // printf("Read code %hu\n", response->code);
 
                     if (response->code == SERVER_ENTER_PSV)
                         state = ST_PARSE_START;
@@ -102,6 +101,7 @@ void get_server_response(struct server_response *response)
                 if (curr_byte == '\n')
                 {
                     idx = 0;
+                    memset(&file_content, 0, sizeof(file_content));
                     state = ST_READING_CODE;
                 }
                 break;
@@ -118,9 +118,7 @@ void get_server_response(struct server_response *response)
                 if (curr_byte == ')')
                 {
                     sscanf(psv_server_info, "%hu,%hu,%hu,%hu,%hu,%hu", &ip1, &ip2, &ip3, &ip4, &port1, &port2);
-                    printf("READ PASV INFO\n");
-                    state = ST_END;
-                    printf("State %d\n", state);
+                    state = ST_FLUSH_SINGLE;
                 }
                 else
                     psv_server_info[idx++] = curr_byte;
@@ -213,6 +211,8 @@ void parse_URl(char *url, struct urlInfo *information)
     {
         char ip[16];
 
+        printf("Getting server name...\n");
+
         if (get_IP(information->host, ip) == 0)
         {
             strcpy(information->host, ip);
@@ -278,7 +278,7 @@ int send_command(char *instruction, struct server_response *response)
             {
                 get_server_response(response);
                 response_type = response->code / 100;
-                printf("response_type %d\n", response_type);
+                // printf("response_type %d\n", response_type);
             }
 
             switch (state)
@@ -317,7 +317,7 @@ int send_command(char *instruction, struct server_response *response)
     }
 }
 
-int request_file(char *resource, struct server_response *response)
+int request_file(char *resource, struct server_response *response, char *filename)
 {
 
     char command[strlen(resource) + 7];
@@ -328,11 +328,14 @@ int request_file(char *resource, struct server_response *response)
     {
         perror("write() server command\n");
         exit(-1);
+    } else
+    {
+        printf("Successfully requested file\n");
     }
 
     unsigned char state = ST_WAIT;
 
-    while (state == ST_WAIT)
+    while (state != ST_SUCCESS)
     {
         unsigned char response_type;
 
@@ -348,6 +351,7 @@ int request_file(char *resource, struct server_response *response)
             switch (response_type)
             {
             case 1:
+                get_file(filename);
                 break;
             case 2:
                 state = ST_SUCCESS;
@@ -489,7 +493,7 @@ int login(char *user, char *pass)
 
 void get_file(char *filename)
 {
-
+    printf("\nStarting file transfer...\n");
     FILE *file = fopen(filename, "wb+");
     if (file == NULL)
     {
@@ -509,6 +513,7 @@ void get_file(char *filename)
         }
     }
     fclose(file);
+    printf("Finished file transfer...\n\n");
 }
 
 void close_connect()
@@ -535,6 +540,10 @@ int main(int argc, char **argv)
 
     parse_URl(argv[1], &arguments);
 
+    printf("\n#################################################################################################\n");
+    printf("Using user %s pass %s host %s urlPath %s filename %s\n", arguments.user, arguments.password, arguments.host, arguments.urlPath, arguments.filename);
+    printf("#################################################################################################\n\n");
+
     open_socket(arguments.host, DEFAULT_PORT, &control_socket);
 
     get_server_response(&response);
@@ -542,35 +551,35 @@ int main(int argc, char **argv)
     {
         printf("Error connecting to server\n");
         exit(-1);
-    };
+    }
+    else
+    {
+        printf("Successfully opened control socket\n");
+    }
 
-    printf("1\n");
 
     if (login(arguments.user, arguments.password) != SERVER_LOGIN_SUCCESSFUL)
     {
         printf("Error logging in to server\n");
         exit(-1);
-    };
-
-    printf("2\n");
+    } else
+    {
+        printf("Successfully logged in\n");
+    }
 
     send_command("PASV", &response);
 
-    printf("3\n");
+    printf("Successfully entered passive mode\n");
 
     open_socket(response.server_ip, response.server_port, &data_socket);
 
-    printf("4\n");
+    printf("Successfully opened data socket\n");
 
-    request_file(arguments.urlPath, &response);
-
-    printf("5\n");
-
-    get_file(arguments.filename);
-
-    printf("6\n");
+    request_file(arguments.urlPath, &response, arguments.filename);
 
     close_connect();
+
+    printf("Successfully closed connection\n");
 
     return 0;
 }

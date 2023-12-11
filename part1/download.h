@@ -117,7 +117,7 @@ int send_command(char *instruction, struct server_response *response);
 * @param response, a struct containing the response code and, in case of 227, ip and port information
 * @return an int with the value of the instruction code
 */
-int request_file(char *resource, struct server_response *response);
+int request_file(char *resource, struct server_response *response, char* filename);
 
 /*
 * Logs in the server
@@ -136,5 +136,5 @@ void get_file(char *filename);
 /*
 * Closes the connection to the server, closing the sockets
 */
-void close_connect()
+void close_connect();
 #endif
