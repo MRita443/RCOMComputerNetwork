@@ -136,5 +136,5 @@ void get_file(char *filename);
 /*
 * Closes the connection to the server, closing the sockets
 */
-void close_connect()
+void close_connect();
 #endif
